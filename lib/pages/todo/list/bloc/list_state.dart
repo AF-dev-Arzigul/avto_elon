@@ -1,23 +1,28 @@
-import 'package:dars12/pages/todo/list/user_model.dart';
+part of 'list_bloc.dart';
 
-abstract class ListState {}
-
-class InitialState extends ListState {}
-
-class LoadingState extends ListState {
+@immutable
+class ListState {
+  final Status status;
   final List<UserModel> users;
-
-  LoadingState(this.users);
-}
-
-class SuccessState extends ListState {
-  final List<UserModel> users;
-
-  SuccessState(this.users);
-}
-
-class FailState extends ListState {
   final String message;
 
-  FailState(this.message);
+  const ListState({
+    this.status = Status.initial,
+    this.users = const [],
+    this.message = "",
+  });
+
+  ListState copyWith({
+    Status? status,
+    List<UserModel>? users,
+    String? message,
+  }) {
+    return ListState(
+      status: status ?? this.status,
+      users: users ?? this.users,
+      message: message ?? this.message,
+    );
+  }
 }
+
+enum Status { initial, loading, success, fail }

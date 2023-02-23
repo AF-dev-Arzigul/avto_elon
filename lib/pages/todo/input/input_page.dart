@@ -6,6 +6,8 @@ class InputPage extends StatefulWidget {
 
   const InputPage({Key? key, this.callback}) : super(key: key);
 
+  Widget get page => this;
+
   @override
   State<InputPage> createState() => _InputPageState();
 }

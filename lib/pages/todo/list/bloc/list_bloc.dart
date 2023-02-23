@@ -1,39 +1,74 @@
 import 'dart:async';
-import 'package:dars12/pages/todo/list/user_model.dart';
-import 'list_event.dart';
-import 'list_state.dart';
 
-class ListBloc {
-  final _eventController = StreamController<ListEvent>();
-  final _stateController = StreamController<ListState>();
+import 'package:bloc/bloc.dart';
+import 'package:meta/meta.dart';
 
-  ListBloc() {
-    _eventController.stream.listen((event) async {
-      if (event is AddEvent) {
-        _stateController.add(LoadingState(_list));
-        await Future.delayed(const Duration(seconds: 1));
-        _list.add(UserModel(event.name, event.phone));
-        _stateController.add(SuccessState(_list));
-        //_stateController.add(FailState("${_list}"));
-      } else if (event is DeleteEvent) {
-        if (_list.length > event.index) {
-          _list.removeAt(event.index);
-          _stateController.add(SuccessState(_list));
-        } else {
-          _stateController.add(FailState("XATOOOO"));
-        }
-      }
-    });
+import '../user_model.dart';
+
+part 'list_event.dart';
+
+part 'list_state.dart';
+
+class ListBloc extends Bloc<ListEvent, ListState> {
+  ListBloc() : super(const ListState()) {
+    on<AddEvent>((event, emit) => _emitAdd(event, emit));
+    on<DeleteEvent>((event, emit) => _emitDelete(event, emit));
   }
 
-  final _list = <UserModel>[];
+  Future<void> _emitAddOld(AddEvent event, Emitter<ListState> emit) async {
+    emit(ListState(
+      status: Status.loading,
+      users: state.users,
+      message: state.message,
+    ));
+    await Future.delayed(const Duration(seconds: 1));
 
-  void close() {
-    _stateController.close();
-    _eventController.close();
+    emit(ListState(
+      status: Status.fail,
+      users: state.users,
+      message: "Xatolik",
+    ));
+    await Future.delayed(const Duration(seconds: 1));
+
+    //state.users; // o'zgaruvchilarni olish uchun
+    //state.users.add(UserModel(event.name, event.phone));//bunaqa ishlatilmaydi
+    final list = <UserModel>[];
+    list.addAll(state.users);
+    list.add(UserModel(event.name, event.phone));
+    emit(ListState(status: Status.success, users: list, message: ""));
   }
 
-  StreamSink<ListEvent> get event => _eventController.sink;
+  Future<void> _emitAdd(AddEvent event, Emitter<ListState> emit) async {
+    emit(state.copyWith(status: Status.loading));
+    await Future.delayed(const Duration(seconds: 1));
 
-  Stream<ListState> get stream => _stateController.stream;
+    emit(state.copyWith(status: Status.fail, message: "Xatolik"));
+    await Future.delayed(const Duration(seconds: 1));
+
+    //state.users; // o'zgaruvchilarni olish uchun
+    //state.users.add(UserModel(event.name, event.phone));//bunaqa ishlatilmaydi
+
+    // final list = <UserModel>[];
+    // list.addAll(state.users);
+    // list.add(UserModel(event.name, event.phone));
+
+    // final list = <UserModel>[...[],UserModel("name", "phone"),...[]];//..addAll([]);
+
+    emit(state.copyWith(
+      status: Status.success,
+      users: [...state.users, UserModel(event.name, event.phone)],
+    ));
+
+    // emit(state.copyWith(status: Status.loading));
+    // try {
+    //   emit(state.copyWith(
+    //     status: Status.success,
+    //     users: await _api.users(),
+    //   ));
+    // } catch (e) {
+    //   emit(state.copyWith(status: Status.fail, message: "$e"));
+    // }
+  }
+
+  Future<void> _emitDelete(DeleteEvent event, Emitter<ListState> emit) async {}
 }
