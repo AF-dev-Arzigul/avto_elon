@@ -1,3 +1,4 @@
+import 'package:dars12/pages/form/form_page.dart';
 import 'package:dars12/pages/todo/list/bloc/list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:dars12/pages/todo/list/list_page.dart';
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(),
-      home: const ListPage(name: "GITA").page,
+      home: const FormPage().page,
       // home: BlocProvider(
       //   create: (context) => ListBloc(),
       //   child: const ListPage(),
